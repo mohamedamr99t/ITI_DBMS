@@ -13,6 +13,8 @@ validate_db_name() {
         echo "-------------------------------------------------------------"
         echo "Invalid database name. Please start with a letter or underscore"
         echo "followed by letters, numbers, or underscores."
+        echo "Follow the instructions above , Please try again."
+        echo "-------------------------------------------------------------"
         return 1
     fi
     return 0
@@ -34,9 +36,7 @@ create_database() {
             fi
             # Break the loop if the user enters a valid database name
             break  
-        else
-            echo "Follow the instructions above , Please try again."
-          echo "-------------------------------------------------------------"
+           
         fi
     done
     echo
