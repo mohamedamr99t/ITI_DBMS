@@ -53,14 +53,18 @@ list_databases() {
 connect_to_database() {
     echo "Enter the name of the database you want to connect to:"
     read dbName
-    if [ -d "database/$dbName" ]; then
-        cd "database/$dbName"
-        echo "Connected to database '$dbName'."
-        # -------DON'T-------You can add more logic here for interacting with tables/files.
-        
+    if validate_db_name "$dbName"; then
+        if [ -d "database/$dbName" ]; then
+            cd "database/$dbName"
+            echo "Connected to database '$dbName'."
+            # ---------------------------------You can add more logic here for interacting with tables/files.
+        else
+            echo "Database '$dbName' does not exist."
+        fi
     else
-        echo "Database '$dbName' does not exist."
+        echo "Invalid database name."
     fi
+    echo
 }
 
 # Function to drop a database
