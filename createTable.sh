@@ -1,64 +1,55 @@
 #!/bin/bash
 
-validate_table_name() {
-    local tableName="$1"
-    if [[ ! "$tableName" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
-        return 1
-    fi
-    return 0
-}
-
 create_table() {
-    echo "Enter the name of the new table:"
+    echo "Enter the name of the table:"
     read tableName
 
-    if validate_table_name "$tableName"; then
-        if [ -f "$PWD/$tableName.txt" ]; then
-            echo "Table '$tableName' already exists."
-        elif [ -d "database/$dbName" ]; then
-            echo " Database '$dbName' does not exist."
-            return 1
-        else
-            # Create the table file
-            cd $PWD
-            touch "${tableName}.txt"
-            echo "Table '${tableName}' created."
+    # Check if table already exists
+    if table_exists "$tableName"; then
+        echo "Table '$tableName' already exists."
+        return
+    fi
 
-            # Ask the user about the number of additional columns
-            echo "Enter the number of columns for '$tableName':"
-            read numColumns
+    # Create a file for the table
+    touch "database/$tableName.txt"
 
-            for ((i = 1; i <= $numColumns; i++)); do
-                # Create metadata for the table with the primary key as the first column
-              
-                echo "Enter name for column $i:"
-                read colName
+    # Create the id column as the primary key
+    echo "id:int" >> "database/$tableName.txt"
 
-                while true; do
-                    echo "Enter type for column $colName (string or integer):"
-                    read colType
+    echo "Enter the number of fields:"
+    read numFields
 
-                    if [ "$colType" == "string" ] || [ "$colType" == "integer" ]; then
-                        if [ $i -eq 1 ]; then
-                            tableMetadata+="Column No.${colNumber=1} called $colName is primary key\n\n"
-                        fi
-                        tableMetadata+="Column No.${colNumber=1}: name=$colName,type=$colType\n"
-                        ((colNumber++))
-                        break
-                    else
-                        echo "Invalid column type. Please enter 'string' or 'integer'."
-                    fi
-                done
+    echo "Primary Key: id"  # Display primary key in the table structure
 
-            done
+    for ((i = 1; i <= numFields; i++)); do
+        echo "Enter field $i information in the format 'name:type':"
+        read fieldInfo
 
-            echo -e "$tableMetadata" >"${tableName}.metadata"
-            echo "Table metadata created for '${tableName}'."
-            # Display the created table metadata
-            echo -e "\nTable Metadata for '${tableName}':"
-            echo -e "$tableMetadata"
+        IFS=':' read -ra fieldArray <<< "$fieldInfo"
+
+        fieldName="${fieldArray[0]}"
+        fieldType="${fieldArray[1]}"
+
+        # Validate fieldType
+        if [ "$fieldType" != "string" ] && [ "$fieldType" != "int" ]; then
+            echo "Invalid field type. Please choose 'string' or 'int'."
+            return
         fi
+
+        # Append column details to the table file
+        echo "${idCounter}=$i $fieldName:$fieldType" >> "database/$tableName.txt"
+    done
+
+    echo "Table '$tableName' is created."
+    echo "Table Structure:"
+    cat "database/$tableName.txt"
+}
+
+table_exists() {
+    tableName="$1"
+    if [ -f "database/$tableName.txt" ]; then
+        return 0 # Table exists
     else
-        echo -e "\nInvalid Table Name. \nPlease start with a letter or underscore followed by letters, numbers, or underscores."
+        return 1 # Table does not exist
     fi
 }

@@ -1,4 +1,6 @@
 #!/bin/bash
+source "createTable.sh"
+
 
 # Check if the database directory exists, otherwise create it
 if [ ! -d "database" ]; then
@@ -8,13 +10,12 @@ fi
 
 # Function to validate database name
 validate_db_name() {
-    local dbName="$1"
+    dbName="$1"
     if [[ ! "$dbName" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
-        echo "-------------------------------------------------------------"
-        echo "Invalid database name. Please start with a letter or underscore"
+        echo -e "\nInvalid database name.\nPlease start with a letter or underscore"
         echo "followed by letters, numbers, or underscores."
         echo "Follow the instructions above, Please try again."
-        echo "-------------------------------------------------------------"
+        echo "__________________________________________________"
         return 1
     fi
     return 0
@@ -24,7 +25,8 @@ validate_db_name() {
 create_database() {
     while true; do
         echo "Enter the name of the database:"
-        echo "-------------------------------------------------------------"
+        echo "__________________________________________________"
+
         read dbName
         if validate_db_name "$dbName"; then
             if [ -d "database/$dbName" ]; then
@@ -42,69 +44,129 @@ create_database() {
     echo
 }
 
-# Function to list existing databases
+# List databases
 list_databases() {
     echo "Listing databases..."
-    echo "......................"
 
-    # Check if there are any databases
     if [ -z "$(ls -A database/)" ]; then
         echo "No databases found."
     else
-        # Loop through database folder and print each subfolder found
-        for dir in database/*/; do
-            # Extract just the database name
-            db=$(basename "$dir")
-
-            # Print the database name
-            echo "$db"
+        for db in database/*/; do
+            echo "- $(basename "$db")"
         done
     fi
 }
 
-# Source tables_implementation script
-source "tables_implementation.sh"
+# Function to drop a database
+drop_database() {
+
+    echo "1. Drop single database"
+    echo "2. Drop all databases"
+    read -p "Select an option: " choice
+
+    if [ "$choice" = "1" ]; then
+
+        # Original logic to drop single database
+        echo "Enter name of database to drop:"
+        read dbName
+
+        if validate_db_name "$dbName"; then
+            if [ -d "database/$dbName" ]; then
+                rm -r "database/$dbName"
+                echo "Dropped database $dbName."
+            else
+                echo "Database $dbName does not exist."
+            fi
+        else
+            echo "Invalid database name."
+        fi
+
+    elif [ "$choice" = "2" ]; then
+
+        # Logic to drop all databases
+        read -p "Are you sure you want to drop ALL databases? (y/n) " confirm
+        if [ "$confirm" = "y" ]; then
+            rm -r database/*
+            echo "Dropped ALL databases."
+        else
+            echo "Operation cancelled."
+        fi
+
+    else
+        echo "Invalid choice."
+    fi
+
+}
 
 # Function to connect to a database
 connect_to_database() {
-    while true; do
-        echo "Enter the name of the database you want to connect to:"
-        echo "-------------------------------------------------------------"
-        read dbName
-        if validate_db_name "$dbName"; then
-            if [ -d "database/$dbName" ]; then
-                cd "database/$dbName"
-                interact_with_database # Call the interact_with_database function
-            else
-                echo "Database '$dbName' does not exist."
-            fi
-            break
-        else
-            echo "Invalid database name. Please try again."
-        fi
-    done
-    echo
-}
-
-# Function to drop a database
-drop_database() {
-    echo "Enter the name of the database you want to drop:"
+    echo "Enter the name of the database you want to connect to:"
     read dbName
+
     if validate_db_name "$dbName"; then
         if [ -d "database/$dbName" ]; then
-            rm -r "database/$dbName"
-            echo "Database '$dbName' dropped."
+            echo "Connected to '$dbName' database."
+            while true; do
+                echo "Choose an option:"
+                echo "1. Create Table"
+                echo "2. List Tables"
+                echo "3. Drop Table"
+                echo "4. Insert into Table"
+                echo "5. Select From Table"
+                echo "6. Delete From Table"
+                echo "7. Update Table"
+                echo "8. Disconnect from Database"
+                read dbChoice
+
+                case $dbChoice in
+                1)
+                    # Call your create_table function here
+                    create_table
+                    ;;
+                2)
+                    # Call your list_tables function here
+                    list_tables
+                    ;;
+                3)
+                    # Call your drop_table function here
+                    drop_table
+                    ;;
+                4)
+                    # Call your insert_into_table function here
+                    insert_into_table
+                    ;;
+                5)
+                    # Call your select_from_table function here
+                    select_from_table
+                    ;;
+                6)
+                    # Call your delete_from_table function here
+                    delete_from_table
+                    ;;
+                7)
+                    # Call your update_table function here
+                    update_table
+                    ;;
+                8)
+                    echo "Disconnected from database '$dbName'."
+                    break
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter a valid option."
+                    ;;
+                esac
+            done
         else
             echo "Database '$dbName' does not exist."
         fi
     else
-        echo "Invalid database name."
+        echo "Invalid database name. Please try again."
     fi
 }
 
 # Main menu
 echo "Welcome to Database Management"
-echo "***********************************************"
+echo "__________________________________________________"
 
 while true; do
     echo "Select an option:"
@@ -116,12 +178,12 @@ while true; do
     read choice
 
     case $choice in
-        1) create_database ;;
-        2) list_databases ;;
-        3) connect_to_database ;;
-        4) drop_database ;;
-        5) exit ;;
-        *) echo "Invalid choice, please select a valid option." ;;
+    1) create_database ;;
+    2) list_databases ;;
+    3) connect_to_database ;;
+    4) drop_database ;;
+    5) exit ;;
+    *) echo "Invalid choice, please select a valid option." ;;
     esac
     echo
 done
