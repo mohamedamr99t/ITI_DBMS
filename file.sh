@@ -43,7 +43,6 @@ create_database() {
 }
 
 # Function to list existing databases
-# Function to list existing databases
 list_databases() {
     while true; do
         echo "Enter the name of the database:"
@@ -62,20 +61,27 @@ list_databases() {
 
 # Function to connect to a database
 connect_to_database() {
-    echo "Enter the name of the database you want to connect to:"
-    read dbName
-    if validate_db_name "$dbName"; then
-        if [ -d "database/$dbName" ]; then
-            cd "database/$dbName"
-            echo "Connected to database '$dbName'."
+    while true; do
+        echo "Enter the name of the database you want to connect to:"
+        echo "-------------------------------------------------------------"
+        read dbName
+        if validate_db_name "$dbName"; then
+            if [ -d "database/$dbName" ]; then
+                cd "database/$dbName"
+                interact_with_database    # Call the interact_with_database function
+            else
+                echo "Database '$dbName' does not exist."
+            fi
+            break
         else
-            echo "Database '$dbName' does not exist."
+            echo "Invalid database name. Please try again."
         fi
-    else
-        echo "Invalid database name."
-    fi
+    done
     echo
 }
+
+# Source the database interactions script
+source "tables_implementation.sh"
 
 # Function to drop a database
 drop_database() {
@@ -92,6 +98,8 @@ drop_database() {
         echo "Invalid database name."
     fi
 }
+
+
 
 # Main menu
 echo "Welcome to Database Management"
