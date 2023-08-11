@@ -13,14 +13,13 @@ validate_db_name() {
         echo "-------------------------------------------------------------"
         echo "Invalid database name. Please start with a letter or underscore"
         echo "followed by letters, numbers, or underscores."
-        echo "Follow the instructions above , Please try again."
+        echo "Follow the instructions above, Please try again."
         echo "-------------------------------------------------------------"
         return 1
     fi
     return 0
 }
 
-# Function to create a new database
 # Function to create a new database
 create_database() {
     while true; do
@@ -35,18 +34,20 @@ create_database() {
                 echo "Database '$dbName' is created."
             fi
             # Break the loop if the user enters a valid database name
-            break  
-           
+            break
+        else
+          return
         fi
     done
     echo
 }
 
-
 # Function to list existing databases
 list_databases() {
     echo "Existing databases:"
-    ls -d database/*/
+    for dbDir in database/*/; do
+        echo "$(basename $dbDir)"
+    done
 }
 
 # Function to connect to a database
@@ -70,18 +71,22 @@ connect_to_database() {
 # Function to drop a database
 drop_database() {
     echo "Enter the name of the database you want to drop:"
-    read dbname
-    if [ -d "database/$dbName" ]; then
-        rm -r "database/$dbName"
-        echo "Database '$dbName' dropped."
+    read dbName
+    if validate_db_name "$dbName"; then
+        if [ -d "database/$dbName" ]; then
+            rm -r "database/$dbName"
+            echo "Database '$dbName' dropped."
+        else
+            echo "Database '$dbName' does not exist."
+        fi
     else
-        echo "Database '$dbName' does not exist."
+        echo "Invalid database name."
     fi
 }
 
 # Main menu
 echo "Welcome to Database Management"
-        echo "***********************************************"
+echo "***********************************************"
 
 while true; do
     echo "Select an option:"
