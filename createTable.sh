@@ -13,13 +13,14 @@ create_table() {
     read tableName
 
     if validate_table_name "$tableName"; then
-        if [ -f "database/$dbName/table_$tableName.txt" ]; then
+        if [ -f "$PWD/$tableName.txt" ]; then
             echo "Table '$tableName' already exists."
+        elif [ -d "database/$dbName" ]; then
+            echo " Database '$dbName' does not exist."
+            return 1
         else
-            # To prevent the error of touch file in non-existing directory
+            # Create the table file
             cd $PWD
-            echo "Current directory: $(pwd)"
-
             touch "${tableName}.txt"
             echo "Table '${tableName}' created."
 
@@ -27,11 +28,9 @@ create_table() {
             echo "Enter the number of columns for '$tableName':"
             read numColumns
 
-            # Create metadata for the table with the primary key as the first column
-            tableMetadata="primary_key\n"
-            tableMetadata+="name=pk,type=integer\n"
-
             for ((i = 1; i <= $numColumns; i++)); do
+                # Create metadata for the table with the primary key as the first column
+              
                 echo "Enter name for column $i:"
                 read colName
 
@@ -40,17 +39,22 @@ create_table() {
                     read colType
 
                     if [ "$colType" == "string" ] || [ "$colType" == "integer" ]; then
-                        tableMetadata+="name=$colName,type=$colType\n"
+                        if [ $i -eq 1 ]; then
+                            tableMetadata+="Column No.${colNumber=1} called $colName is primary key\n\n"
+                        fi
+                        tableMetadata+="Column No.${colNumber=1}: name=$colName,type=$colType\n"
+                        ((colNumber++))
                         break
                     else
                         echo "Invalid column type. Please enter 'string' or 'integer'."
                     fi
                 done
+
             done
 
-            echo -e "$tableMetadata" > "${tableName}.metadata"
+            echo -e "$tableMetadata" >"${tableName}.metadata"
             echo "Table metadata created for '${tableName}'."
-             # Display the created table metadata
+            # Display the created table metadata
             echo -e "\nTable Metadata for '${tableName}':"
             echo -e "$tableMetadata"
         fi
