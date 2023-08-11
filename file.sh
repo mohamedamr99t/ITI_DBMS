@@ -6,17 +6,42 @@ if [ ! -d "database" ]; then
     echo "Database directory created."
 fi
 
+# Function to validate database name
+validate_db_name() {
+    local dbName="$1"
+    if [[ ! "$dbName" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+        echo "-------------------------------------------------------------"
+        echo "Invalid database name. Please start with a letter or underscore"
+        echo "followed by letters, numbers, or underscores."
+        return 1
+    fi
+    return 0
+}
+
+# Function to create a new database
 # Function to create a new database
 create_database() {
-    echo "Enter the name of database"
-    read dbName
-    if [ -d "database/$dbName" ]; then
-        echo "Database '$dbName' already exists."
-    else
-        mkdir "database/$dbName"
-        echo "Database '$dbName' is created."
-    fi
+    while true; do
+        echo "Enter the name of the database:"
+        echo "-------------------------------------------------------------"
+        read dbName
+        if validate_db_name "$dbName"; then
+            if [ -d "database/$dbName" ]; then
+                echo "Database '$dbName' already exists."
+            else
+                mkdir "database/$dbName"
+                echo "Database '$dbName' is created."
+            fi
+            # Break the loop if the user enters a valid database name
+            break  
+        else
+            echo "Follow the instructions above , Please try again."
+          echo "-------------------------------------------------------------"
+        fi
+    done
+    echo
 }
+
 
 # Function to list existing databases
 list_databases() {
@@ -31,7 +56,7 @@ connect_to_database() {
     if [ -d "database/$dbName" ]; then
         cd "database/$dbName"
         echo "Connected to database '$dbName'."
-        # ---------------------------------You can add more logic here for interacting with tables/files.
+        # -------DON'T-------You can add more logic here for interacting with tables/files.
         
     else
         echo "Database '$dbName' does not exist."
@@ -51,8 +76,11 @@ drop_database() {
 }
 
 # Main menu
+echo "Welcome to Database Management"
+        echo "***********************************************"
+
 while true; do
-    echo "Main Menu:"
+    echo "Select an option:"
     echo "1. Create Database"
     echo "2. List Databases"
     echo "3. Connect To Database"
@@ -68,4 +96,5 @@ while true; do
         5) exit;;
         *) echo "Invalid choice, please select a valid option.";;
     esac
+    echo
 done
