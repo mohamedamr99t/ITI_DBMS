@@ -43,11 +43,21 @@ create_database() {
 }
 
 # Function to list existing databases
+# Function to list existing databases
 list_databases() {
-    echo "Existing databases:"
-    for dbDir in database/*/; do
-        echo "$(basename $dbDir)"
+    while true; do
+        echo "Enter the name of the database:"
+        echo "-------------------------------------------------------------"
+        read dbName
+        if validate_db_name "$dbName"; then
+            echo "Existing databases:"
+            ls -d database/*/
+            break
+        else
+         echo "Invalid database name."
+        fi
     done
+    echo
 }
 
 # Function to connect to a database
@@ -58,7 +68,6 @@ connect_to_database() {
         if [ -d "database/$dbName" ]; then
             cd "database/$dbName"
             echo "Connected to database '$dbName'."
-            # ---------------------------------You can add more logic here for interacting with tables/files.
         else
             echo "Database '$dbName' does not exist."
         fi
