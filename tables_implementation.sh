@@ -1,9 +1,10 @@
 #!/bin/bash
+source "createTable.sh"
 
 # Function to interact with a connected database
 interact_with_database() {
- while true; do
-        echo "Connected to database '$dbName'."
+    while true; do
+        echo -e "Connected to database '$dbName'\n"
         echo "Select an option:"
         echo "1. Create Table"
         echo "2. List Tables"
@@ -16,7 +17,8 @@ interact_with_database() {
         read dbChoice
 
         case $dbChoice in
-            1) echo "Create Table";;    
+            1) echo "Create Table"
+               create_table ;;
             2) echo "List Tables";;        
             3) echo "Drop Table";;         
             4) echo "Insert into Table";;  

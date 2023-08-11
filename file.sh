@@ -36,7 +36,7 @@ create_database() {
             # Break the loop if the user enters a valid database name
             break
         else
-          return
+            return
         fi
     done
     echo
@@ -44,20 +44,26 @@ create_database() {
 
 # Function to list existing databases
 list_databases() {
-    while true; do
-        echo "Enter the name of the database:"
-        echo "-------------------------------------------------------------"
-        read dbName
-        if validate_db_name "$dbName"; then
-            echo "Existing databases:"
-            ls -d database/*/
-            break
-        else
-         echo "Invalid database name."
-        fi
-    done
-    echo
+    echo "Listing databases..."
+    echo "......................"
+
+    # Check if there are any databases
+    if [ -z "$(ls -A database/)" ]; then
+        echo "No databases found."
+    else
+        # Loop through database folder and print each subfolder found
+        for dir in database/*/; do
+            # Extract just the database name
+            db=$(basename "$dir")
+
+            # Print the database name
+            echo "$db"
+        done
+    fi
 }
+
+# Source tables_implementation script
+source "tables_implementation.sh"
 
 # Function to connect to a database
 connect_to_database() {
@@ -68,7 +74,7 @@ connect_to_database() {
         if validate_db_name "$dbName"; then
             if [ -d "database/$dbName" ]; then
                 cd "database/$dbName"
-                interact_with_database    # Call the interact_with_database function
+                interact_with_database # Call the interact_with_database function
             else
                 echo "Database '$dbName' does not exist."
             fi
@@ -79,9 +85,6 @@ connect_to_database() {
     done
     echo
 }
-
-# Source the database interactions script
-source "tables_implementation.sh"
 
 # Function to drop a database
 drop_database() {
@@ -99,8 +102,6 @@ drop_database() {
     fi
 }
 
-
-
 # Main menu
 echo "Welcome to Database Management"
 echo "***********************************************"
@@ -115,12 +116,12 @@ while true; do
     read choice
 
     case $choice in
-        1) create_database;;
-        2) list_databases;;
-        3) connect_to_database;;
-        4) drop_database;;
-        5) exit;;
-        *) echo "Invalid choice, please select a valid option.";;
+        1) create_database ;;
+        2) list_databases ;;
+        3) connect_to_database ;;
+        4) drop_database ;;
+        5) exit ;;
+        *) echo "Invalid choice, please select a valid option." ;;
     esac
     echo
 done
