@@ -1,3 +1,20 @@
+#!/bin/bash
+# Check if the database directory exists, otherwise create it
+if [ ! -d "database" ]; then
+    mkdir "database"
+    echo "Database directory created."
+fi
+
+# Function to validate database name
+validate_db_name() {
+    dbName="$1"
+    if [[ ! "$dbName" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+        echo -e "\nInvalid database name.\nPlease start with a letter or underscore"
+        echo "followed by letters, numbers, or underscores."
+        echo "Follow the instructions above, Please try again."
+        echo "__________________________________________________"
+        return 1
+# Function to generate create script
 create_table() {
   # Get table name
   read -p "Enter name of table: " table_name
@@ -14,7 +31,7 @@ create_table() {
     return 1
   fi
 
-  # Get number of columns
+  # Get number of columns (excluding 'id')
   read -p "Enter number of columns (excluding 'id'): " num_cols
 
   # Validate number of columns
@@ -48,8 +65,20 @@ create_table() {
       return 1
     fi
 
-    # Get column data
-    read -p "Enter data for column $col_name: " col_data_value
+    if [[ $col_type == "int" ]]; then
+      # Get column data (integer validation)
+      while true; do
+        read -p "Enter data for column $col_name: " col_data_value
+        if ! [[ $col_data_value =~ ^[0-9]+$ ]]; then
+          echo "Error: Invalid data. Expected an integer for 'int' type column."
+        else
+          break
+        fi
+      done
+    else
+      # Get column data (string type)
+      read -p "Enter data for column $col_name: " col_data_value
+    fi
 
     # Add column name, type, and data to respective variables
     col_names+="$col_name:"
@@ -59,6 +88,7 @@ create_table() {
   done
 
   # Create database directory if it doesn't exist
+  dbName="mydatabase"
   if [ ! -d "database/$dbName" ]; then
     mkdir -p "database/$dbName"
   fi
@@ -71,3 +101,5 @@ create_table() {
   echo "Create script '$table_name.txt' generated and saved successfully."
   echo "Note: The 'id' column is the primary key of the table."
 }
+
+
