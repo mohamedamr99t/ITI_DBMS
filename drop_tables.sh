@@ -1,11 +1,11 @@
 #!/bin/bash
-source "createTable.sh"  
+source "createTable.sh"
 
 # Function to drop all tables
 drop_all_tables() {
     read -p "Are you sure you want to drop ALL tables? (y/n) " confirm
     if [ "$confirm" = "y" ]; then
-        rm database/*.txt
+        rm database/$dbName/*.txt
         echo "Dropped ALL tables."
     else
         echo "Operation cancelled."
@@ -17,10 +17,10 @@ drop_specific_table() {
     echo "Enter the name of the table you want to drop:"
     read tableName
 
-    if table_exists "$tableName"; then
+    if is_existing_table "$tableName"; then  # You need to define the is_existing_table function
         read -p "Are you sure you want to drop '$tableName' table? (y/n) " confirm
         if [ "$confirm" = "y" ]; then
-            rm "database/$tableName.txt"
+            rm "database/$dbName/$tableName.txt"
             echo "Dropped '$tableName' table."
         else
             echo "Operation cancelled."
@@ -48,3 +48,6 @@ while true; do
     echo
 done
 }
+
+
+
