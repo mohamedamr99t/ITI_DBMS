@@ -1,4 +1,3 @@
-# Function to generate create script
 create_table() {
   # Get table name
   read -p "Enter name of table: " table_name
@@ -70,4 +69,5 @@ create_table() {
   echo "$col_data" >> "database/$dbName/$table_name.txt"
 
   echo "Create script '$table_name.txt' generated and saved successfully."
+  echo "Note: The 'id' column is the primary key of the table."
 }
