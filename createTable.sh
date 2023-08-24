@@ -4,7 +4,6 @@ if [ ! -d "database" ]; then
     mkdir "database"
     echo "Database directory created."
 fi
-
 # Function to validate database name
 validate_db_name() {
     dbName="$1"
@@ -14,6 +13,8 @@ validate_db_name() {
         echo "Follow the instructions above, Please try again."
         echo "__________________________________________________"
         return 1
+    fi  
+}
 # Function to generate create script
 create_table() {
   # Get table name
@@ -87,11 +88,6 @@ create_table() {
 
   done
 
-  # Create database directory if it doesn't exist
-  dbName="mydatabase"
-  if [ ! -d "database/$dbName" ]; then
-    mkdir -p "database/$dbName"
-  fi
 
   # Write column names, types, and data horizontally to a file
   echo "$col_names" > "database/$dbName/$table_name.txt"
@@ -101,5 +97,3 @@ create_table() {
   echo "Create script '$table_name.txt' generated and saved successfully."
   echo "Note: The 'id' column is the primary key of the table."
 }
-
-
